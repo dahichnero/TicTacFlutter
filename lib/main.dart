@@ -1,9 +1,16 @@
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_eh/allcolors.dart';
+import 'package:flutter_eh/firebase_options.dart';
 import 'package:flutter_eh/gamingtic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -25,21 +32,23 @@ class MyApp extends StatelessWidget {
 }
 
 class MyGamePage extends StatefulWidget{
-  const MyGamePage({super.key, required this.login, required this.count, required this.modId});
+  const MyGamePage({super.key, required this.playId, required this.modId});
 
-  final String login;
-  final int count;
+  /*final String login;
+  final int count;*/
   final int modId;
+  final int playId;
 
   @override
   State<MyGamePage> createState()=>_MyGamePageState();
 }
 
 class Modificators extends StatefulWidget{
-  const Modificators({super.key, required this.login, required this.count});
-  final String login;
-  final int count;
+  const Modificators({super.key, required this.playId});
+  //final String login;
+  //final int count;
   //final int modId;
+  final int playId;
   @override
   State<Modificators> createState()=>_ModificatorsState();
 }
@@ -52,11 +61,13 @@ class SignUp extends StatefulWidget{
 }
 
 class AchivHunt extends StatefulWidget{
-  const AchivHunt({super.key, required this.login, required this.count, required this.modId});
+  const AchivHunt({super.key, required this.playId, required this.modId, required this.real});
 
-  final String login;
-  final int count;
+  /*final String login;
+  final int count;*/
   final int modId;
+  final int playId;
+  final List<Map<String,dynamic>> real;
 
   @override
   State<AchivHunt> createState()=>_AchivHuntState();
@@ -75,8 +86,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _ModificatorsState extends State<Modificators>{
-  //int count=0;
   
+
+
   @override
   void initState(){
     super.initState();
@@ -90,17 +102,17 @@ class _ModificatorsState extends State<Modificators>{
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text("Модификаторы", style: TextStyle(color: Colors.white, fontSize: 20),),
-          const Text("Доступно несколько модификаторов", style: TextStyle(color: Colors.white, fontSize: 15)),
+          const Text("Модификаторы", style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: 'RubikBubbles'),),
+          const Text("Доступно несколько модификаторов", style: TextStyle(color: Colors.white, fontSize: 15, fontFamily: 'RubikBubbles')),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               IconButton(iconSize: 50, onPressed: () async{
                 final SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
                 sharedPreferences.setInt("MOD", 1);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>MyGamePage(login: widget.login, count: widget.count, modId: 1,)));
-              }, icon: const Icon(Icons.toys)),
-              const Text("Режим кошки/собаки", style: TextStyle(color: Colors.white, fontSize: 15),)
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>MyGamePage(playId: widget.playId, modId: 1,)));
+              }, icon: const Icon(Icons.catching_pokemon, color: Colors.white,)),
+              const Text("Режим кошки/собаки", style: TextStyle(color: Colors.white, fontSize: 15, fontFamily: 'RubikBubbles'),)
             ],
           ),
           Row(
@@ -109,14 +121,14 @@ class _ModificatorsState extends State<Modificators>{
               IconButton(iconSize: 50, onPressed: () async {
                 final SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
                 sharedPreferences.setInt("MOD", 0);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>MyGamePage(login: widget.login, count: widget.count, modId: 0,)));
-              }, icon: const Icon(Icons.ac_unit)),
-              const Text("Классический режим", style: TextStyle(color: Colors.white, fontSize: 15),)
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>MyGamePage(playId: widget.playId, modId: 0,)));
+              }, icon: const Icon(Icons.ac_unit, color: Colors.white,)),
+              const Text("Классический режим", style: TextStyle(color: Colors.white, fontSize: 15, fontFamily: 'RubikBubbles'),)
             ],
           ),
           IconButton(onPressed: () {
             Navigator.pop(context);
-          }, icon: const Icon(Icons.arrow_back)),
+          }, icon: const Icon(Icons.arrow_back, color: Colors.white,)),
           
         ],
       ),
@@ -128,16 +140,33 @@ class _ModificatorsState extends State<Modificators>{
 
 class _AchivHuntState extends State<AchivHunt>{
 
-  List<Achivment> exList=[];
+  /*List<Achivment> exList=[];
+  List<int> allWins=[];
+
+  List<Map<String, dynamic>> items=[];
+  List<dynamic> itemsPlayer=[];
+  List<Map<String, dynamic>> real=[];*/
 
   @override
   void initState(){
-    for (int i=0; i<allAch.length; i++){
-      if (allAch[i].countWin<=widget.count){
-        exList.add(allAch[i]);
-      }
-    }
     super.initState();
+    /*FirebaseFirestore.instance.collection('Achivment').get().then((QuerySnapshot que){
+              que.docs.forEach((doc){
+                items.add(doc.data() as Map<String, dynamic>);
+              });
+    });
+
+    FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: widget).get().then((QuerySnapshot que){
+              que.docs.forEach((doc){
+                itemsPlayer=doc.get('achivments');
+              });
+    });
+
+    for (int i=0; i<items.length; i++){
+      if (!itemsPlayer.contains(items[i]['id'])){
+        real.add(items[i]);
+      }
+    }*/
   }
   
   @override
@@ -147,10 +176,12 @@ class _AchivHuntState extends State<AchivHunt>{
       body: Container(
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const Text("Достижения", style: TextStyle(color: Colors.white, fontSize: 20,)),
+              const Text("Достижения", style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: 'RubikBubbles')),
               SizedBox(width: 430, height: 500,
-              child: ListView.builder(itemCount: exList.length, scrollDirection: Axis.vertical, itemBuilder: (BuildContext context, int index){
+              child: ListView.builder(itemCount: widget.real.length, scrollDirection: Axis.vertical, itemBuilder: (BuildContext context, int index){
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   width: 308,
@@ -162,16 +193,34 @@ class _AchivHuntState extends State<AchivHunt>{
                   ),
                   child: Center(
                     child: Column(children: [
-                      Image(image: AssetImage(exList[index].image),width: 50, height: 50,),
-                      Text(exList[index].name,style: const TextStyle(color: Colors.black, fontSize: 18)),
-                      Text("${exList[index].countWin}",style: const TextStyle(color: Colors.black, fontSize: 18),)
+                      Image(image: AssetImage(widget.real[index]['photo']),width: 50, height: 50,),
+                      Text(widget.real[index]['name'],style: const TextStyle(color: Colors.black, fontSize: 18, fontFamily: 'RubikBubbles')),
                     ],),
                   ),
                 );
               }),),
               IconButton(onPressed: () {
             Navigator.pop(context);
-          }, icon: const Icon(Icons.arrow_back)),
+          }, icon: const Icon(Icons.arrow_back, color: Colors.white,)),
+          IconButton(onPressed: (){
+            /*FirebaseFirestore.instance.collection('Achivment').get().then((QuerySnapshot que){
+              que.docs.forEach((doc){
+                items.add(doc.data() as Map<String, dynamic>);
+              });
+            });
+
+            FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: widget.playId).get().then((QuerySnapshot que){
+                      que.docs.forEach((doc){
+                        itemsPlayer=doc.get('achivments');
+                      });
+            });
+
+            for (int i=0; i<items.length; i++){
+              if (!itemsPlayer.contains(items[i]['id'])){
+                real.add(items[i]);
+              }
+            }*/
+          }, icon: const Icon(Icons.abc))
             ],
           ),
         ),
@@ -246,13 +295,20 @@ class _SignUpState extends State<SignUp>{
   String login="";
   String pass="";
   int count=0;
+  int playerId=0;
+
+  void initFirebase() async{
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+  }
 
   @override
   void initState(){
     super.initState();
-    login=PlatTicTac.getLogin();
+    initFirebase();
+    /*login=PlatTicTac.getLogin();
     pass=PlatTicTac.getPass();
-    count=PlatTicTac.getCount();
+    count=PlatTicTac.getCount();*/
   }
 
   @override
@@ -263,15 +319,29 @@ class _SignUpState extends State<SignUp>{
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          const Text("Вход", style: TextStyle(color: Colors.white, fontSize: 20),),
-          TextFormField(decoration: const InputDecoration(hintText: "Логин",), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, ), initialValue: "$login", onChanged: (text){
+          const Text("Вход", style: TextStyle(color: Colors.white, fontSize: 20, fontFamily: 'RubikBubbles'),),
+          TextFormField(decoration: const InputDecoration(hintText: "Логин",), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'RubikBubbles'), initialValue: "$login", onChanged: (text){
             login=text;
           },),
-          TextFormField(decoration: const InputDecoration(hintText: "Пароль",), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, ), initialValue: "$pass", onChanged: (text){
+          TextFormField(decoration: const InputDecoration(hintText: "Пароль",), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, fontFamily: 'RubikBubbles'), initialValue: "$pass", onChanged: (text){
             pass=text;
           },),
           ElevatedButton(onPressed: () async {
-            if (login.isNotEmpty && pass.isNotEmpty){
+
+            FirebaseFirestore.instance.collection('PlayerTicTac').where('login', isEqualTo: login).where('password', isEqualTo: pass).get().then((QuerySnapshot que){
+              que.docs.forEach((doc){
+                playerId=doc['id'];
+              });
+            });
+
+            if (playerId!=0){
+              final SharedPreferences shared=await SharedPreferences.getInstance();
+              shared.setInt("MOD", 0);
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>MyGamePage(playId: playerId, modId: 0,)));
+            }
+
+
+            /*if (login.isNotEmpty && pass.isNotEmpty){
               final SharedPreferences shared=await SharedPreferences.getInstance();
               if (shared.getString("USERNAME")==login && shared.getString("USERPASS")==pass){
                 count=shared.getInt("USERCOUNT")!;
@@ -287,19 +357,19 @@ class _SignUpState extends State<SignUp>{
                 shared.setInt("MOD", 0);
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>MyGamePage(login: login, count: count, modId: 0,)));
               }
-            }
+            }*/
             else{
               showDialog(context: context, builder: (context)=>AlertDialog(
-                title: const Text("Ошибка"),
-                content: const Text("Ошибка входа в систему"),
+                title: const Text("Ошибка", style: TextStyle(fontFamily: 'RubikBubbles'),),
+                content: const Text("Ошибка входа в систему", style: TextStyle(fontFamily: 'RubikBubbles'),),
                 actions: <Widget>[
                   TextButton(onPressed: (){
                     Navigator.of(context).pop();
-                  }, child: const Text("ОК"))
+                  }, child: const Text("ОК", style: TextStyle(fontFamily: 'RubikBubbles'),))
                 ],
               ));
             }
-          }, child: const Text("Войти", style: TextStyle(fontSize: 18,),))
+          }, child: const Text("Войти", style: TextStyle(fontSize: 18, fontFamily: 'RubikBubbles'),))
         ],
       ),
     );
@@ -315,15 +385,27 @@ class _MyGamePageState extends State<MyGamePage>{
   List<int> scoreBoard=[0,0,0,0,0,0,0,0,];
   Gaming gaming=Gaming();
 
+  List<Map<String,dynamic>> items=[];
+  List<dynamic> itemsPlayer=[];
+  List<Map<String, dynamic>> real=[];
+
   String login="";//Shared
   int count=0;
   int modId=0;
+  int playerId=0;
 
   @override
   void initState(){
     super.initState();
-    login=widget.login;
-    count=widget.count;
+    /*login=widget.login;
+    count=widget.count;*/
+    playerId=widget.playId;
+    FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: playerId).get().then((QuerySnapshot que){
+              que.docs.forEach((doc){
+                login=doc['login'];
+                count=doc['countWin'];
+              });
+            });
     modId=widget.modId;
     //
     gaming.newBoard=Gaming.newGameBoard();
@@ -346,8 +428,8 @@ class _MyGamePageState extends State<MyGamePage>{
         mainAxisAlignment:  MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text("Игрок: $login Количество побед: $count", style: const TextStyle(color: Colors.white, fontSize: 22),),
-          Text("$lastPlay Очередь", style: const TextStyle(color: Colors.white, fontSize: 22)),
+          Text("Игрок: $login Количество побед: $count", style: const TextStyle(color: Colors.white, fontSize: 22, fontFamily: 'RubikBubbles'),),
+          Text("$lastPlay Очередь", style: const TextStyle(color: Colors.white, fontSize: 22, fontFamily: 'RubikBubbles')),
           SizedBox(height: 20.0,),
           Container(
             width: boardWigth,
@@ -359,6 +441,8 @@ class _MyGamePageState extends State<MyGamePage>{
                 onTap: gameOver ? null : () {
                   if (gaming.newBoard![index]==""){
                     setState(() {
+                      items.clear();
+                      real.clear();
                       gaming.newBoard![index]=lastPlay;
                       turn++;
                       gameOver=gaming.whoWin(lastPlay, index, scoreBoard, 3);
@@ -366,8 +450,33 @@ class _MyGamePageState extends State<MyGamePage>{
                         resInEnd="$lastPlay победил!!!";
                         if (lastPlay==mods[modId][0]){
                           count=count+1;
+                          //update
+                          FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: playerId).get().then((QuerySnapshot que){
+                          que.docs.forEach((doc){
+                            doc.reference.update({'countWin': count});
+                            });
+                          });
+
+                          switch (count){
+                            case 1: FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: playerId).get().then((QuerySnapshot que){
+                            que.docs.forEach((doc){
+                            doc.reference.update({'achivments': FieldValue.arrayUnion([1])});
+                            });
+                          });
+                            case 3: FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: playerId).get().then((QuerySnapshot que){
+                            que.docs.forEach((doc){
+                            doc.reference.update({'achivments': FieldValue.arrayUnion([2])});
+                            });
+                          });
+                            case 5:
+                            FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: playerId).get().then((QuerySnapshot que){
+                            que.docs.forEach((doc){
+                            doc.reference.update({'achivments': FieldValue.arrayUnion([3])});
+                            });
+                          });
+                          }
                         }
-                      }
+                                              }
                       else if (!gameOver && turn==9){
                         resInEnd="Ух ты! Ничья!";
                       }
@@ -389,7 +498,7 @@ class _MyGamePageState extends State<MyGamePage>{
             }),),
           ),
           const SizedBox(height: 10.0,),
-          Text(resInEnd, style: const TextStyle(color: Colors.white, fontSize: 54.0),),
+          Text(resInEnd, style: const TextStyle(color: Colors.white, fontSize: 20, fontFamily: 'RubikBubbles'),),
           ElevatedButton.icon(onPressed: (){
             setState(() {
               gaming.newBoard=Gaming.newGameBoard();
@@ -399,36 +508,53 @@ class _MyGamePageState extends State<MyGamePage>{
               resInEnd="";
               scoreBoard=[0, 0, 0, 0, 0, 0, 0, 0];
             });
-          }, icon: const Icon(Icons.replay), label: const Text("Начать заново")),
+          }, icon: const Icon(Icons.replay), label: const Text("Начать заново", style: TextStyle(fontFamily: 'RubikBubbles'),)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               IconButton(onPressed: () async{
                 final SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
                 sharedPreferences.setInt("USERCOUNT", count);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>Modificators(login: login, count: count)));
-              }, icon: const Icon(Icons.restart_alt)),
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>Modificators(playId: playerId,)));
+              }, icon: const Icon(Icons.restart_alt, color: Colors.white,)),
               IconButton(onPressed: () async {
                 final SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
                 sharedPreferences.setInt("USERCOUNT", count);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>AchivHunt(login: login, count: count, modId: modId,)));
-              }, icon: const Icon(Icons.payment)),
+                FirebaseFirestore.instance.collection('Achivment').get().then((QuerySnapshot que){
+                  que.docs.forEach((doc){
+                    items.add(doc.data() as Map<String, dynamic>);
+                  });
+                });
+
+                FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: playerId).get().then((QuerySnapshot que){
+                          que.docs.forEach((doc){
+                            itemsPlayer=doc.get('achivments');
+                          });
+                });
+
+                for (int i=0; i<items.length; i++){
+                  if (itemsPlayer.contains(items[i]['id'])){
+                    real.add(items[i]);
+                  }
+                }
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>AchivHunt(playId: playerId, modId: modId, real: real,)));
+              }, icon: const Icon(Icons.payment, color: Colors.white,)),
               IconButton(onPressed: (){
                 showDialog(context: context, builder: (context)=> AlertDialog(
-                  title: const Text("Выход из системы"),
-                  content: const Text("Вы уверены что хотите выйти?"),
+                  title: const Text("Выход из системы", style: TextStyle(fontFamily: 'RubikBubbles'),),
+                  content: const Text("Вы уверены что хотите выйти?", style: TextStyle(fontFamily: 'RubikBubbles'),),
                   actions: <Widget>[
                     TextButton(onPressed: () async{
                       final SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
                       sharedPreferences.setInt("USERCOUNT", count);
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>const SignUp()));
-                    }, child: Container(color: Colors.white, padding: const EdgeInsets.all(14), child: const Text("Да"),)),
+                    }, child: Container(color: Colors.white, padding: const EdgeInsets.all(14), child: const Text("Да", style: TextStyle(fontFamily: 'RubikBubbles'),),)),
                     TextButton(onPressed: (){
                       Navigator.of(context).pop();
-                    }, child: Container(color: Colors.white, padding: const EdgeInsets.all(14), child: const Text("Нет"),)),
+                    }, child: Container(color: Colors.white, padding: const EdgeInsets.all(14), child: const Text("Нет", style: TextStyle(fontFamily: 'RubikBubbles'),),)),
                   ],
                 ));
-              }, icon: const Icon(Icons.exit_to_app))
+              }, icon: const Icon(Icons.exit_to_app, color: Colors.white,))
             ],
           ),
         ],
@@ -508,15 +634,16 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class Achivment{
+  late int id;
   late String name;
   late int countWin;
   late String image;
-  Achivment(this.name,this.countWin,this.image);
+  Achivment(this.id,this.name,this.countWin,this.image);
 }
 
 List allAch=[
-  Achivment("Выйграйте 1 раз", 1, "assets/bronze.png"),
-  Achivment("Выйграйте 3 раз", 3, "assets/silver.png"),
-  Achivment("Выйграйте 5 раз", 5, "assets/gold.png"),
+  Achivment(1,"Выйграйте 1 раз", 1, "assets/bronze.png"),
+  Achivment(2,"Выйграйте 3 раз", 3, "assets/silver.png"),
+  Achivment(3,"Выйграйте 5 раз", 5, "assets/gold.png"),
 ];
 
