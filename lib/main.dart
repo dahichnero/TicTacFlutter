@@ -5,7 +5,6 @@ import 'package:flutter_eh/allcolors.dart';
 import 'package:flutter_eh/firebase_options.dart';
 import 'package:flutter_eh/gamingtic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async{
@@ -34,8 +33,6 @@ class MyApp extends StatelessWidget {
 class MyGamePage extends StatefulWidget{
   const MyGamePage({super.key, required this.playId, required this.modId});
 
-  /*final String login;
-  final int count;*/
   final int modId;
   final int playId;
 
@@ -45,9 +42,6 @@ class MyGamePage extends StatefulWidget{
 
 class Modificators extends StatefulWidget{
   const Modificators({super.key, required this.playId});
-  //final String login;
-  //final int count;
-  //final int modId;
   final int playId;
   @override
   State<Modificators> createState()=>_ModificatorsState();
@@ -62,9 +56,6 @@ class SignUp extends StatefulWidget{
 
 class AchivHunt extends StatefulWidget{
   const AchivHunt({super.key, required this.playId, required this.modId, required this.real});
-
-  /*final String login;
-  final int count;*/
   final int modId;
   final int playId;
   final List<Map<String,dynamic>> real;
@@ -74,16 +65,6 @@ class AchivHunt extends StatefulWidget{
 }
 
 
-
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
 
 class _ModificatorsState extends State<Modificators>{
   
@@ -140,33 +121,9 @@ class _ModificatorsState extends State<Modificators>{
 
 class _AchivHuntState extends State<AchivHunt>{
 
-  /*List<Achivment> exList=[];
-  List<int> allWins=[];
-
-  List<Map<String, dynamic>> items=[];
-  List<dynamic> itemsPlayer=[];
-  List<Map<String, dynamic>> real=[];*/
-
   @override
   void initState(){
     super.initState();
-    /*FirebaseFirestore.instance.collection('Achivment').get().then((QuerySnapshot que){
-              que.docs.forEach((doc){
-                items.add(doc.data() as Map<String, dynamic>);
-              });
-    });
-
-    FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: widget).get().then((QuerySnapshot que){
-              que.docs.forEach((doc){
-                itemsPlayer=doc.get('achivments');
-              });
-    });
-
-    for (int i=0; i<items.length; i++){
-      if (!itemsPlayer.contains(items[i]['id'])){
-        real.add(items[i]);
-      }
-    }*/
   }
   
   @override
@@ -202,25 +159,6 @@ class _AchivHuntState extends State<AchivHunt>{
               IconButton(onPressed: () {
             Navigator.pop(context);
           }, icon: const Icon(Icons.arrow_back, color: Colors.white,)),
-          IconButton(onPressed: (){
-            /*FirebaseFirestore.instance.collection('Achivment').get().then((QuerySnapshot que){
-              que.docs.forEach((doc){
-                items.add(doc.data() as Map<String, dynamic>);
-              });
-            });
-
-            FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: widget.playId).get().then((QuerySnapshot que){
-                      que.docs.forEach((doc){
-                        itemsPlayer=doc.get('achivments');
-                      });
-            });
-
-            for (int i=0; i<items.length; i++){
-              if (!itemsPlayer.contains(items[i]['id'])){
-                real.add(items[i]);
-              }
-            }*/
-          }, icon: const Icon(Icons.abc))
             ],
           ),
         ),
@@ -306,9 +244,6 @@ class _SignUpState extends State<SignUp>{
   void initState(){
     super.initState();
     initFirebase();
-    /*login=PlatTicTac.getLogin();
-    pass=PlatTicTac.getPass();
-    count=PlatTicTac.getCount();*/
   }
 
   @override
@@ -340,24 +275,6 @@ class _SignUpState extends State<SignUp>{
               Navigator.push(context, MaterialPageRoute(builder: (context)=>MyGamePage(playId: playerId, modId: 0,)));
             }
 
-
-            /*if (login.isNotEmpty && pass.isNotEmpty){
-              final SharedPreferences shared=await SharedPreferences.getInstance();
-              if (shared.getString("USERNAME")==login && shared.getString("USERPASS")==pass){
-                count=shared.getInt("USERCOUNT")!;
-                login=shared.getString("USERNAME")!;
-                pass=shared.getString("USERPASS")!;
-                shared.setInt("MOD", 0);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>MyGamePage(login: login, count: count, modId: 0,)));
-              }
-              else{
-                shared.setInt("USERCOUNT", count);
-                shared.setString("USERNAME", login);
-                shared.setString("USERPASS", pass);
-                shared.setInt("MOD", 0);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>MyGamePage(login: login, count: count, modId: 0,)));
-              }
-            }*/
             else{
               showDialog(context: context, builder: (context)=>AlertDialog(
                 title: const Text("Ошибка", style: TextStyle(fontFamily: 'RubikBubbles'),),
@@ -397,8 +314,6 @@ class _MyGamePageState extends State<MyGamePage>{
   @override
   void initState(){
     super.initState();
-    /*login=widget.login;
-    count=widget.count;*/
     playerId=widget.playId;
     FirebaseFirestore.instance.collection('PlayerTicTac').where('id', isEqualTo: playerId).get().then((QuerySnapshot que){
               que.docs.forEach((doc){
@@ -562,88 +477,4 @@ class _MyGamePageState extends State<MyGamePage>{
     );
   }
 }
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
-}
-
-class Achivment{
-  late int id;
-  late String name;
-  late int countWin;
-  late String image;
-  Achivment(this.id,this.name,this.countWin,this.image);
-}
-
-List allAch=[
-  Achivment(1,"Выйграйте 1 раз", 1, "assets/bronze.png"),
-  Achivment(2,"Выйграйте 3 раз", 3, "assets/silver.png"),
-  Achivment(3,"Выйграйте 5 раз", 5, "assets/gold.png"),
-];
 
